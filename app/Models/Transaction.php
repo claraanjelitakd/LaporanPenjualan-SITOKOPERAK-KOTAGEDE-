@@ -28,5 +28,6 @@ class Transaction extends Model
     public function details()
     {
         return $this->hasMany(DetailTransaksi::class, 'transaksi_id');
+        
     }
 }
