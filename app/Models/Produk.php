@@ -64,4 +64,16 @@ class Produk extends Model
     {
         return $this->belongsToMany(Usaha::class, 'usaha_produk', 'produk_id', 'usaha_id');
     }
+    // Relasi ke produk_views
+    public function views()
+    {
+        return $this->hasMany(ProdukView::class, 'produk_id');
+    }
+
+    // Relasi ke produk_likes
+    public function likesRelation()
+    {
+        return $this->hasMany(ProdukLike::class, 'produk_id');
+    }
 }
+
