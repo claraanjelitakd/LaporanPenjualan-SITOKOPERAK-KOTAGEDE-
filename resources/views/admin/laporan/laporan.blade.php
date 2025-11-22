@@ -79,6 +79,7 @@
     <a href="{{ route('admin.laporan.produkSlowMoving') }}">🐌 Produk Slow Moving</a>
     <a href="{{ route('admin.laporan.transaksiUser') }}">👥 Transaksi Per User</a>
     <a href="{{ route('admin.laporan.kategoriProduk') }}">📦 Kategori Produk</a>
+    <a href="{{ route('admin.laporan.produkViews') }}"> On Clik Produk</a>
 </div>
 
 {{-- ==== GRID DASHBOARD UTAMA ==== --}}
