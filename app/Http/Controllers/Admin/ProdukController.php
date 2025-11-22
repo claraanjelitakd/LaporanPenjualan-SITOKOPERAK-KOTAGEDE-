@@ -58,6 +58,15 @@ class ProdukController extends Controller
             ->with('success', 'Produk berhasil ditambahkan.');
     }
 
+public function laporanViews()
+{
+    $produks = Produk::select('id', 'nama_produk', 'views', 'likes')->get();
+
+    return view('admin.laporan.laporan-views', compact('produks'));
+}
+
+
+
     public function update(Request $request, $id)
     {
         $data = $request->validate([

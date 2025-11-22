@@ -14,5 +14,6 @@
         <a href="{{ route('admin.laporan.produkSlowMoving') }}" class="list-group-item list-group-item-action">Produk Slow Moving</a>
         <a href="{{ route('admin.laporan.transaksiUser') }}" class="list-group-item list-group-item-action">Transaksi Per User</a>
         <a href="{{ route('admin.laporan.kategoriProduk') }}" class="list-group-item list-group-item-action">Kategori Produk</a>
-    </div>
+       <a href="{{ route('admin.laporan.produkViews') }}" class="list-group-item list-group-item-action">Views</a>
+
 @stop

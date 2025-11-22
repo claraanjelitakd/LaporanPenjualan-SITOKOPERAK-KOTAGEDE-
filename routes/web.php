@@ -125,6 +125,19 @@ Route::middleware(['role:admin'])->group(function () {
     Route::get('produk-slow-moving', [LaporanController::class, 'produkSlowMoving'])->name('admin.laporan.produkSlowMoving');
     Route::get('transaksi-user', [LaporanController::class, 'transaksiUser'])->name('admin.laporan.transaksiUser');
     Route::get('kategori-produk', [LaporanController::class, 'kategoriProduk'])->name('admin.laporan.kategoriProduk');
+
+    Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
+
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+
+        Route::get('produk-views', [ProdukController::class, 'laporanViews'])
+            ->name('produkViews');
+
+    });
+
+});
+    Route::get('laporan/produk-views', [ProdukController::class, 'produkViews'])->name('laporan.produk-views');
+    
 });
 
 });
