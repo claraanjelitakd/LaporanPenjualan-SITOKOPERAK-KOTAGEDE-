@@ -29,6 +29,7 @@
                 </div>
             </div>
         </div>
+
         <div class="container">
             <div class="row">
                 @if ($produks->count() > 0)
@@ -39,16 +40,22 @@
                                     <div class="hover-content">
                                         <ul>
                                             <li>
-                                                <a href="{{ route('guest-singleProduct', $produk->slug) }}">
+                                                <a href="{{ route('guest-singleProduct', $produk->id) }}">
                                                     <i class="fa fa-eye"></i>
                                                 </a>
                                             </li>
-                                            <li><a href=""><i class="fa fa-star"></i></a></li>
+
+                                            <button type="button" class="like-btn" data-id="{{ $produk->id }}"
+                                                style="background:none;border:none;">
+                                                <i
+                                                    class="fa fa-star star-icon {{ $produk->likes > 0 ? 'active' : '' }}"></i>
+                                            </button>
+
+
                                             <li><a href=""><i class="fa fa-shopping-cart"></i></a></li>
                                         </ul>
                                     </div>
 
-                                    <!-- PERBAIKAN DI SINI -->
                                     <a href="{{ route('guest-singleProduct', $produk->slug) }}" class="img-link">
                                         <img src="{{ asset('storage/' . (optional($produk->fotoProduk->first())->file_foto_produk ?? 'placeholder.jpg')) }}"
                                             alt="{{ $produk->nama_produk }}">
@@ -56,15 +63,20 @@
                                 </div>
 
                                 <div class="down-content">
-                                    <h4><a
-                                            href="{{ route('guest-singleProduct', $produk->slug) }}">{{ $produk->nama_produk }}</a>
+                                    <h4>
+                                        <a href="{{ route('guest-singleProduct', $produk->id) }}">
+                                            {{ $produk->nama_produk }}
+                                        </a>
                                     </h4>
+
                                     <span>Rp {{ number_format($produk->harga, 0, ',', '.') }}</span>
+
                                     <ul class="stars">
                                         @for ($i = 0; $i < 5; $i++)
                                             <li><i class="fa fa-star"></i></li>
                                         @endfor
                                     </ul>
+
                                     <p>{{ $produk->deskripsi }}</p>
                                 </div>
                             </div>
@@ -78,7 +90,6 @@
             </div>
         </div>
     </section>
-    <!-- ***** Products Area Ends ***** -->
 @endsection
 
 <style>
@@ -89,19 +100,16 @@
     }
 
     .thumb a.img-link {
-        position: relative;
-        z-index: 1;
         display: block;
+        position: relative;
     }
 
     .thumb a.img-link img {
-        display: block;
         width: 100%;
         height: auto;
         transition: transform .35s ease;
     }
 
-    /* Overlay */
     .thumb .hover-content {
         position: absolute;
         inset: 0;
@@ -113,37 +121,64 @@
         background: rgba(0, 0, 0, 0.25);
         opacity: 0;
         transform: translateY(10px);
-        transition: opacity .25s ease, transform .25s ease;
+        transition: .25s;
         pointer-events: none;
-        /* tetap NONE supaya klik bisa tembus */
     }
 
-    /* ICON AGAR MASIH BISA DIKLIK */
-    .thumb .hover-content a,
-    .thumb .hover-content button {
+    .thumb .hover-content a {
         pointer-events: auto;
-        /* aktif hanya untuk icon */
-        color: #fff;
         background: rgba(0, 0, 0, 0.5);
-        border-radius: 50%;
         padding: .6rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        border-radius: 50%;
         width: 42px;
         height: 42px;
-        font-size: 1rem;
-        transition: background .15s ease, transform .15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
     }
 
-    .thumb:hover .hover-content,
-    .thumb:focus-within .hover-content {
+    .thumb:hover .hover-content {
         opacity: 1;
         transform: translateY(0);
     }
 
-    .thumb:hover a.img-link img,
-    .thumb:focus-within a.img-link img {
+    .thumb:hover a.img-link img {
         transform: scale(1.05);
     }
+
+    .star-icon {
+        transition: .2s ease;
+        color: #ffffff;
+    }
+
+    .star-icon.active {
+        color: #ffc107 !important;
+    }
 </style>
+
+<script>
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+
+            const productId = this.getAttribute('data-id');
+            const icon = this.querySelector('.star-icon');
+
+            // Toggle UI local
+            icon.classList.toggle('active');
+
+            fetch(`/produk/${productId}/toggle-like`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Updated likes:', data.likes);
+                })
+                .catch(err => console.error(err));
+        });
+    });
+</script>
