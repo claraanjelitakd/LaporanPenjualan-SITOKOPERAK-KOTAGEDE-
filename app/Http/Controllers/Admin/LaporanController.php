@@ -8,15 +8,125 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Transaction;
 use App\Models\Usaha;
 use App\Models\Produk;
+use App\Models\User;
 
 class LaporanController extends Controller
 {
     // di LaporanController
     public function index()
     {
-        return view('admin.laporan.laporan'); // path ke laporan.blade.php
-    }
+        // Summary
+        $totalTransaksi = Transaction::count();
+        $totalPendapatan = Transaction::sum('total');
+        $topProduk = Produk::withSum('detailTransaksi', 'jumlah')
+            ->orderByDesc('detail_transaksi_sum_jumlah')
+            ->first()?->nama_produk;
+        $userAktif = User::withCount('transaksi')
+            ->orderByDesc('transaksi_count')
+            ->first()?->username;
 
+        // Chart data top 5
+        $transaksiChart = Transaction::selectRaw('DATE(tanggal_transaksi) as tgl, COUNT(*) as total')
+            ->groupBy('tgl')->orderBy('tgl')->limit(7)->get();
+        $transaksiChart = [
+            'labels' => $transaksiChart->pluck('tgl'),
+            'data' => $transaksiChart->pluck('total'),
+        ];
+
+        $pendapatanChart = Usaha::join('usaha_produk as up', 'up.usaha_id', '=', 'usaha.id')
+            ->join('produk as p', 'p.id', '=', 'up.produk_id')
+            ->join('detail_transaksi as dt', 'dt.produk_id', '=', 'p.id')
+            ->join('transaksi as t', 't.id', '=', 'dt.transaksi_id')
+            ->select('usaha.nama_usaha', DB::raw('SUM(dt.subtotal) as total'))
+            ->groupBy('usaha.id', 'usaha.nama_usaha')
+            ->orderByDesc('total')->limit(5)->get();
+        $pendapatanChart = [
+            'labels' => $pendapatanChart->pluck('nama_usaha'),
+            'data' => $pendapatanChart->pluck('total'),
+        ];
+
+        $produkTerlarisChart = Produk::withSum('detailTransaksi', 'jumlah')
+            ->orderByDesc('detail_transaksi_sum_jumlah')->limit(5)->get();
+        $produkTerlarisChart = [
+            'labels' => $produkTerlarisChart->pluck('nama_produk'),
+            'data' => $produkTerlarisChart->pluck('detail_transaksi_sum_jumlah'),
+        ];
+
+        $produkSlowChart = Produk::withSum('detailTransaksi', 'jumlah')
+            ->orderBy('detail_transaksi_sum_jumlah')->limit(5)->get();
+        $produkSlowChart = [
+            'labels' => $produkSlowChart->pluck('nama_produk'),
+            'data' => $produkSlowChart->pluck('detail_transaksi_sum_jumlah'),
+        ];
+
+        $transaksiUserChart = User::withCount('transaksi')
+            ->orderByDesc('transaksi_count')->limit(5)->get();
+        $transaksiUserChart = [
+            'labels' => $transaksiUserChart->pluck('username'),
+            'data' => $transaksiUserChart->pluck('transaksi_count'),
+        ];
+
+        $kategoriChart = DB::table('kategori_produk as k')
+            ->join('produk as p', 'p.kategori_produk_id', '=', 'k.id')
+            ->leftJoin('detail_transaksi as dt', 'dt.produk_id', '=', 'p.id')
+            ->select('k.nama_kategori_produk', DB::raw('SUM(dt.jumlah) as total_terjual'))
+            ->groupBy('k.id', 'k.nama_kategori_produk')
+            ->orderByDesc('total_terjual')->limit(5)->get();
+        $kategoriChart = [
+            'labels' => $kategoriChart->pluck('nama_kategori_produk'),
+            'data' => $kategoriChart->pluck('total_terjual'),
+        ];
+        // List Tahun (ambil dari data transaksi)
+        $tahunList = Transaction::selectRaw('YEAR(tanggal_transaksi) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        // List Bulan fixed (1-12)
+        $bulanList = collect([
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember'
+        ]);
+
+        // List Usaha
+        $usahaList = Usaha::orderBy('nama_usaha')->get();
+
+        // List Kategori Produk
+        $kategoriList = DB::table('kategori_produk')->orderBy('nama_kategori_produk')->get();
+
+        // List User (kasir)
+        $userList = User::orderBy('username')->get();
+
+
+        return view('admin.laporan.laporan', compact(
+            'totalTransaksi',
+            'totalPendapatan',
+            'topProduk',
+            'userAktif',
+            'transaksiChart',
+            'pendapatanChart',
+            'produkTerlarisChart',
+            'produkSlowChart',
+            'transaksiUserChart',
+            'kategoriChart',
+            'tahunList',
+            'bulanList',
+            'usahaList',
+            'kategoriList',
+            'userList'
+        ));
+
+    }
     // 1. Laporan semua transaksi
     public function transaksi(Request $request)
     {
