@@ -1,12 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Pendapatan Usaha')
+@section('title', 'Laporan Produk Favorite')
 
 @section('css')
     <style>
         body {
             background: #0b1d39 !important;
         }
+
         .card-modern {
             background: #102544 !important;
             border-radius: 14px !important;
@@ -14,12 +15,14 @@
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.35);
             color: #e8eef7;
         }
+
         .report-nav {
             background: #0f233f;
             border-radius: 12px;
             padding: 14px;
             margin-bottom: 18px;
         }
+
         .report-nav a {
             display: block;
             padding: 10px 14px;
@@ -30,52 +33,64 @@
             text-decoration: none;
             transition: 0.2s;
         }
+
         .report-nav a:hover,
         .report-nav a.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             font-weight: 600;
         }
-        .form-control, .btn {
+
+        .form-control,
+        .btn {
             border-radius: 8px !important;
         }
+
         .form-control {
             background-color: #0b1d39;
             color: #e8eef7;
-            border-color: rgba(255,255,255,0.1);
+            border-color: rgba(255, 255, 255, 0.1);
         }
+
+        .table-dark-custom {
+            background-color: #0f223f;
+            color: #e8eef7;
+        }
+
+        .table-dark-custom thead tr {
+            background-color: #081327;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
         .metric-label {
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: .06em;
             opacity: .75;
         }
+
         .metric-value {
             font-size: 22px;
             font-weight: 700;
             margin-top: 4px;
         }
+
         .badge-soft {
-            background: rgba(90, 177, 247, 0.12);
-            border: 1px solid rgba(90, 177, 247, 0.4);
-            color: #5ab1f7;
+            background: rgba(255, 99, 132, 0.1);
+            border: 1px solid rgba(255, 99, 132, 0.4);
+            color: #ff6384;
         }
-        .table-dark-custom {
-            background-color: #0f223f;
-            color: #e8eef7;
-        }
-        .table-dark-custom thead tr {
-            background-color: #081327;
-        }
-        .table-dark-custom tbody tr:hover {
-            background-color: rgba(255,255,255,0.04);
-        }
+
         .toggle-pill {
             display: inline-flex;
             background: #0b1d39;
             border-radius: 999px;
             padding: 2px;
         }
+
         .toggle-pill button {
             border: none;
             background: transparent;
@@ -87,27 +102,31 @@
             cursor: pointer;
             transition: all .18s ease;
         }
+
         .toggle-pill button.active {
             background: #1f3f72;
             color: #ffffff;
             font-weight: 600;
         }
-        #pendapatanUsahaChart {
-            max-height: 380px;
+
+        #produkFavoriteChart {
+            max-height: 360px;
         }
     </style>
 @stop
 
 @section('content_header')
-    <h1 style="color:black; font-weight:600;">Laporan Pendapatan Per Usaha</h1>
+    <h1 style="color:black; font-weight:600;">Laporan Produk Favorite (Like)</h1>
 @stop
 
 @section('content')
-    {{-- 🔍 FILTER --}}
+
+    {{-- 🔍 FILTER TANGGAL + USAHA --}}
     <div class="card-modern mb-3">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.laporan.pendapatanUsaha') }}">
+            <form method="GET" action="{{ route('admin.laporan.produkFavorite') }}">
                 <div class="row">
+                    {{-- Usaha --}}
                     <div class="form-group col-md-3 col-sm-6">
                         <label style="color:#b8ccdf;">Usaha</label>
                         <select name="usaha_id" class="form-control">
@@ -121,38 +140,24 @@
                         </select>
                     </div>
 
+                    {{-- Start Date --}}
                     <div class="form-group col-md-3 col-sm-6">
-                        <label style="color:#b8ccdf;">Kategori Produk</label>
-                        <select name="kategori_id" class="form-control">
-                            <option value="">Semua Kategori</option>
-                            @foreach ($kategoriList as $kategori)
-                                <option value="{{ $kategori->id }}"
-                                    {{ (string) request('kategori_id') === (string) $kategori->id ? 'selected' : '' }}>
-                                    {{ $kategori->nama_kategori_produk }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <label style="color:#b8ccdf;">Start Date</label>
+                        <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
                     </div>
 
+                    {{-- End Date --}}
                     <div class="form-group col-md-3 col-sm-6">
-                        <label style="color:#b8ccdf;">Tanggal Mulai</label>
-                        <input type="date" name="start_date" class="form-control"
-                               value="{{ request('start_date') }}">
+                        <label style="color:#b8ccdf;">End Date</label>
+                        <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
                     </div>
 
-                    <div class="form-group col-md-3 col-sm-6">
-                        <label style="color:#b8ccdf;">Tanggal Akhir</label>
-                        <input type="date" name="end_date" class="form-control"
-                               value="{{ request('end_date') }}">
-                    </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="form-group col-md-3 col-sm-6" style="margin-top: 4px;">
+                    {{-- Tombol --}}
+                    <div class="form-group col-md-3 col-sm-6" style="margin-top: 24px;">
                         <button type="submit" class="btn btn-primary btn-block mb-2">
                             <i class="fa fa-filter"></i> Terapkan
                         </button>
-                        <a href="{{ route('admin.laporan.pendapatanUsaha') }}" class="btn btn-secondary btn-block">
+                        <a href="{{ route('admin.laporan.produkFavorite') }}" class="btn btn-secondary btn-block">
                             <i class="fa fa-sync-alt"></i> Reset
                         </a>
                     </div>
@@ -160,57 +165,50 @@
             </form>
         </div>
     </div>
-
     {{-- 📊 RINGKASAN --}}
+    @php
+        $totalLike = $laporan->sum('total_like');
+        $produkDenganLike = $laporan->where('total_like', '>', 0)->count();
+        // fallback: kalau controller belum kirim $totalProduk, pakai jumlah baris laporan
+        $totalProdukSummary = $totalProduk ?? $laporan->count();
+    @endphp
+
     <div class="row mb-3">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card card-modern">
                 <div class="card-body">
-                    <div class="metric-label">Total Usaha</div>
+                    <div class="metric-label">Total Produk (Ringkasan)</div>
                     <div class="metric-value">
-                        {{ number_format($totalUsaha ?? 0, 0, ',', '.') }}
+                        {{ number_format($totalProdukSummary, 0, ',', '.') }}
                     </div>
                     <span class="badge badge-soft mt-2">
-                        Banyak Usaha
+                        Banyaknya produk pada laporan ini
                     </span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card card-modern">
                 <div class="card-body">
-                    <div class="metric-label">Total Transaksi</div>
+                    <div class="metric-label">Produk Tercatat Like</div>
                     <div class="metric-value">
-                        {{ number_format($totalTransaksi ?? 0, 0, ',', '.') }}
+                        {{ number_format($produkDenganLike, 0, ',', '.') }}
                     </div>
                     <span class="badge badge-soft mt-2">
-                        Akumulasi transaksi
+                        Produk yang minimal mendapat 1 like
                     </span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card card-modern">
                 <div class="card-body">
-                    <div class="metric-label">Total Pendapatan</div>
+                    <div class="metric-label">Total Like</div>
                     <div class="metric-value">
-                        Rp {{ number_format($totalPendapatan ?? 0, 0, ',', '.') }}
+                        {{ number_format($totalLike, 0, ',', '.') }}
                     </div>
                     <span class="badge badge-soft mt-2">
-                        Jumlah penjualan (subtotal detail)
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card card-modern">
-                <div class="card-body">
-                    <div class="metric-label">Rata-rata Nilai Transaksi</div>
-                    <div class="metric-value">
-                        Rp {{ number_format($avgTransaksiGlobal ?? 0, 0, ',', '.') }}
-                    </div>
-                    <span class="badge badge-soft mt-2">
-                        Rata-rata nilai 1 transaksi
+                        Total seluruh like pada periode terpilih
                     </span>
                 </div>
             </div>
@@ -220,52 +218,43 @@
     {{-- 📋 CARD TABEL / GRAFIK --}}
     <div class="card card-modern">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title" style="font-size: 15px;">Performa Pendapatan Per Usaha</h3>
+            <h3 class="card-title" style="font-size: 15px;">Performa Produk Favorite (Like)</h3>
 
-            <div class="toggle-pill" id="togglePendapatanUsaha">
+            {{-- Toggle Tabel / Grafik --}}
+            <div class="toggle-pill" id="toggleViewFavorite">
                 <button type="button" class="active" data-view="table">Tabel</button>
                 <button type="button" data-view="chart">Grafik</button>
             </div>
         </div>
 
-        <div class="card-body" style="min-height: 340px;">
+        <div class="card-body" style="min-height: 320px;">
 
-            {{-- TABEL --}}
-            <div id="view-pendapatan-table">
+            {{-- VIEW TABEL --}}
+            <div id="view-favorite-table">
                 <div class="table-responsive">
                     <table class="table table-dark-custom table-striped mb-0">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Usaha</th>
-                                <th class="text-right">Total Transaksi</th>
-                                <th class="text-right">Total Penjualan</th>
-                                <th class="text-right">Rata-rata Transaksi</th>
-                                <th class="text-center">Transaksi Terakhir</th>
+                                <th style="width:60px;">#</th>
+                                <th>Nama Produk</th>
+                                <th class="text-right" style="width:150px;">Total Like</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($laporan as $i => $row)
+                            @php
+                                $rows = $laporan->where('total_like', '>', 0);
+                            @endphp
+
+                            @forelse($rows as $i => $row)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
-                                    <td>{{ $row->nama_usaha }}</td>
-                                    <td class="text-right">
-                                        {{ number_format($row->total_transaksi, 0, ',', '.') }}
-                                    </td>
-                                    <td class="text-right">
-                                        Rp {{ number_format($row->total_penjualan, 0, ',', '.') }}
-                                    </td>
-                                    <td class="text-right">
-                                        Rp {{ number_format($row->rata_rata_transaksi, 0, ',', '.') }}
-                                    </td>
-                                    <td class="text-center">
-                                        {{ \Carbon\Carbon::parse($row->transaksi_terakhir)->format('d-m-Y H:i') }}
-                                    </td>
+                                    <td>{{ $row->nama_produk }}</td>
+                                    <td class="text-right">{{ number_format($row->total_like, 0, ',', '.') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center" style="opacity:.7; padding: 16px;">
-                                        Tidak ada data pendapatan usaha untuk filter ini.
+                                    <td colspan="3" class="text-center" style="opacity:.7; padding: 16px;">
+                                        Tidak ada data produk favorite untuk periode ini.
                                     </td>
                                 </tr>
                             @endforelse
@@ -274,18 +263,18 @@
                 </div>
             </div>
 
-            {{-- GRAFIK --}}
-            <div id="view-pendapatan-chart" class="d-none">
-                <canvas id="pendapatanUsahaChart"></canvas>
+            {{-- VIEW GRAFIK --}}
+            <div id="view-favorite-chart" class="d-none">
+                <canvas id="produkFavoriteChart"></canvas>
             </div>
 
         </div>
 
-        @if(($laporan ?? collect())->count() > 0)
-            <div class="card-footer" style="font-size: 12px; opacity:.75;">
+        @if ($totalLike > 0)
+            <div class="card-footer" style="font-size: 12px; opacity: .75;">
                 <i class="fa fa-info-circle"></i>
-                Usaha dengan <strong>total penjualan tertinggi</strong> bisa menjadi prioritas untuk
-                stok, promosi, atau pengembangan produk lebih lanjut.
+                Produk dengan <strong>total like</strong> tertinggi menunjukkan preferensi kuat dari pengunjung.
+                Jadikan referensi untuk promo, penempatan etalase, atau rekomendasi utama.
             </div>
         @endif
     </div>
@@ -296,16 +285,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Toggle Tabel / Grafik
-        (function () {
-            const toggle = document.getElementById('togglePendapatanUsaha');
+        (function() {
+            const toggle = document.getElementById('toggleViewFavorite');
             if (!toggle) return;
 
             const btns = toggle.querySelectorAll('button');
-            const viewTable = document.getElementById('view-pendapatan-table');
-            const viewChart = document.getElementById('view-pendapatan-chart');
+            const viewTable = document.getElementById('view-favorite-table');
+            const viewChart = document.getElementById('view-favorite-chart');
 
             btns.forEach(btn => {
-                btn.addEventListener('click', function () {
+                btn.addEventListener('click', function() {
                     btns.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
 
@@ -321,34 +310,32 @@
             });
         })();
 
-        // CHART Pendapatan per Usaha
-        (function () {
-            const canvas = document.getElementById('pendapatanUsahaChart');
+        // CHART FAVORITE
+        (function() {
+            const canvas = document.getElementById('produkFavoriteChart');
             if (!canvas) return;
 
-            const raw = @json($laporan);
+            const allData = @json($laporan);
+            const filtered = allData.filter(r => Number(r.total_like) > 0);
 
-            if (!raw.length) {
+            if (!filtered.length) {
                 canvas.parentNode.innerHTML =
                     '<p style="text-align:center; opacity:0.6; padding-top: 40px;">Tidak ada data untuk ditampilkan.</p>';
                 return;
             }
 
-            // Ambil maksimal 10 usaha teratas biar grafik tidak terlalu padat
-            const top = raw.slice(0, 10);
-
-            const labels = top.map(r => r.nama_usaha);
-            const values = top.map(r => Number(r.total_penjualan));
+            const labels = filtered.map(r => r.nama_produk);
+            const likes = filtered.map(r => Number(r.total_like));
 
             new Chart(canvas.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Total Penjualan (Rp)',
-                        data: values,
-                        backgroundColor: 'rgba(90, 177, 247, 0.7)',
-                        borderColor: 'rgba(90, 177, 247, 1)',
+                        label: 'Total Like',
+                        data: likes,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1.5,
                         borderRadius: 5,
                     }]
@@ -364,9 +351,9 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function (context) {
-                                    const val = context.parsed.y ?? 0;
-                                    return ' Rp ' + val.toLocaleString('id-ID');
+                                label: function(context) {
+                                    const value = context.parsed.y ?? 0;
+                                    return ' ' + value.toLocaleString('id-ID');
                                 }
                             }
                         }
@@ -383,8 +370,8 @@
                         y: {
                             ticks: {
                                 color: '#b8ccdf',
-                                callback: function (value) {
-                                    return 'Rp ' + value.toLocaleString('id-ID');
+                                callback: function(value) {
+                                    return value.toLocaleString('id-ID');
                                 }
                             },
                             grid: {

@@ -9,7 +9,7 @@
                 <div class="col-lg-6">
                     <div class="left-content">
                         <div class="thumb">
-                            <div class="inner-content" >
+                            <div class="inner-content">
                                 <h4>Jogja Istimewah</h4>
                                 <span>Temukan produk-produk istimewah kami!</span>
                                 <div class="main-border-button">
@@ -83,7 +83,18 @@
                                             <ul>
                                                 <li><a href="{{ route('guest-singleProduct', $produk->slug) }}"><i
                                                             class="fa fa-eye"></i></a></li>
-                                                <li><a href=""><i class="fa fa-star"></i></a></li>
+                                                <li>
+                                                    <button type="button" class="like-btn" data-id="{{ $produk->id }}">
+                                                        <i
+                                                            class="fa fa-star star-icon {{ $produk->likes_count > 0 ? 'active' : '' }}"></i>
+                                                    </button>
+                                                    {{-- <a href="#" class="like-btn" data-id="{{ $produk->id }}"
+                                                        data-liked="{{ $produk->is_liked ? '1' : '0' }}">
+                                                        <i class="fa fa-star {{ $produk->is_liked ? 'liked' : '' }}"></i>
+                                                        <span class="like-count">{{ $produk->likes_count }}</span>
+                                                    </a> --}}
+                                                </li>
+
                                                 <li><a href=""><i class="fa fa-shopping-cart"></i></a></li>
                                             </ul>
                                         </div>
@@ -107,6 +118,59 @@
                 </div>
             </div>
     </section>
+
+    <style>
+        .thumb {
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+
+        .star-icon {
+            transition: .2s ease;
+            color: white;
+        }
+
+        .star-icon.active {
+            color: #ffc107 !important;
+        }
+    </style>
+
+    {{-- ========== JS ========== --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.like-btn').forEach(btn => {
+
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const productId = this.dataset.id;
+                    const icon = this.querySelector('.star-icon');
+
+                    fetch(`/produk/${productId}/like`, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.liked) {
+                                icon.classList.add('active');
+                            } else {
+                                icon.classList.remove('active');
+                            }
+                        })
+                        .catch(err => console.error(err));
+                });
+
+            });
+        });
+    </script>
     <!-- ***** Produk Area Ends ***** -->
 
     {{-- <!-- ***** Social Area Starts ***** -->

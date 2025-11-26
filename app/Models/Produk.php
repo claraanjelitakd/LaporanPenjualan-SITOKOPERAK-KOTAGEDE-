@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\DetailTransaksi;
 
 class Produk extends Model
@@ -25,7 +24,6 @@ class Produk extends Model
     {
         parent::boot();
 
-        // Auto generate slug saat create
         static::creating(function ($produk) {
             $slug = Str::slug($produk->nama_produk);
             $existingSlugCount = self::where('slug', $slug)->count();
@@ -35,7 +33,6 @@ class Produk extends Model
             $produk->slug = $slug;
         });
 
-        // Update slug saat nama produk berubah
         static::updating(function ($produk) {
             $produk->slug = Str::slug($produk->nama_produk);
         });
@@ -59,21 +56,21 @@ class Produk extends Model
         return $this->hasMany(DetailTransaksi::class, 'produk_id');
     }
 
-    // Relasi ke usaha (pivot)
+    // Relasi usaha
     public function usaha()
     {
         return $this->belongsToMany(Usaha::class, 'usaha_produk', 'produk_id', 'usaha_id');
     }
-    // Relasi ke produk_views
+
+    // Relasi ke view
     public function views()
     {
         return $this->hasMany(ProdukView::class, 'produk_id');
     }
 
-    // Relasi ke produk_likes
-    public function likesRelation()
-    {
-        return $this->hasMany(ProdukLike::class, 'produk_id');
-    }
+    // ⭐ FIX: Relasi ke likes (WAJIB NAMA likes)
+    public function likes()
+{
+    return $this->hasMany(ProdukLike::class, 'produk_id');
 }
-
+}

@@ -8,26 +8,25 @@ return new class extends Migration
 {
     public function up()
     {
-        // Table untuk menyimpan logs view produk (1 IP hanya 1x dihitung)
+        // === PRODUK VIEWS (1 session 1x view) ===
         Schema::create('produk_views', function (Blueprint $table) {
             $table->id();
             $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
-            $table->string('ip_address')->nullable();
+            $table->string('session_id'); // identitas user/guest
             $table->timestamps();
+
+            $table->unique(['produk_id', 'session_id']);
         });
 
-        // Table untuk menyimpan likes per user
+        // === PRODUK LIKES (1 session 1x like) ===
         Schema::create('produk_likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('session_id'); // identitas user/guest
             $table->timestamps();
 
-            $table->unique(['produk_id', 'user_id']); // user cuma boleh like sekali
+            $table->unique(['produk_id', 'session_id']);
         });
-
-        // NOTE: Tidak menambahkan kolom views/likes di tabel produk.
-        // Perhitungan dilakukan saat runtime menggunakan COUNT pada tabel di atas.
     }
 
     public function down()

@@ -9,14 +9,12 @@ class ProdukView extends Model
 {
     use HasFactory;
 
-    protected $table = 'produk';
+    protected $table = 'produk_views';
 
-    protected $fillable = [
-        'nama_produk',
-        'harga_produk',
-        'stok_produk',
-        'deskripsi_produk',
-        'views',
-        'likes'
-    ];
+    protected $fillable = ['produk_id', 'session_id', 'total_klik'];
+
+    public function produk()
+    {
+        return $this->belongsTo(Produk::class, 'produk_id');
+    }
 }

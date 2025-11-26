@@ -3,188 +3,371 @@
 @section('title', 'Dashboard Laporan')
 
 @section('css')
-<style>
-    body {
-        background: #0b1d39 !important;
-    }
+    <style>
+        body {
+            background: #0b1d39 !important;
+        }
 
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 14px;
-    }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 14px;
+        }
 
-    .card-modern {
-        background: #102544 !important;
-        border-radius: 14px !important;
-        border: 1px solid rgba(255,255,255,0.05);
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
-        color: #e8eef7;
-        padding: 18px;
-    }
+        .card-modern {
+            background: #102544 !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+            color: #e8eef7;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
 
-    .metric-value {
-        font-size: 32px;
-        font-weight: 700;
-        margin-top: 5px;
-    }
+        .metric-value {
+            font-size: 30px;
+            font-weight: 700;
+            margin-top: 5px;
+            color: #5ab1f7;
+        }
 
-    .metric-label {
-        font-size: 14px;
-        opacity: .8;
-    }
+        .metric-label {
+            font-size: 13px;
+            opacity: .8;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
 
-    .chart-box {
-        height: 260px;
-    }
+        .chart-box {
+            height: 260px;
+        }
 
-    /* Sidebar laporan */
-    .report-nav {
-        background: #0f233f;
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 18px;
-    }
+        .report-nav {
+            background: #0f233f;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 18px;
+        }
 
-    .report-nav a {
-        display: block;
-        padding: 10px 14px;
-        color: #b8ccdf;
-        border-radius: 8px;
-        font-size: 14px;
-        margin-bottom: 6px;
-        text-decoration: none;
-        transition: 0.2s;
-    }
+        .report-nav a {
+            display: block;
+            padding: 10px 14px;
+            color: #b8ccdf;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 6px;
+            text-decoration: none;
+            transition: 0.2s;
+        }
 
-    .report-nav a:hover {
-        background: rgba(255,255,255,0.07);
-        color: white;
-    }
+        .report-nav a:hover,
+        .report-nav a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-weight: 600;
+        }
 
-</style>
+        .form-control,
+        .btn {
+            border-radius: 8px !important;
+        }
+
+        .form-control {
+            background-color: #0b1d39;
+            color: #e8eef7;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        h5 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+    </style>
 @stop
 
 @section('content_header')
-<h1 style="color:white; font-weight:600;">Dashboard Laporan</h1>
+    <h1 style="color:black; font-weight:600;">Dashboard Laporan</h1>
 @stop
 
 @section('content')
 
-{{-- === NAVIGASI LAPORAN === --}}
-<div class="report-nav">
-    <a href="{{ route('admin.laporan.transaksi') }}">📄 Semua Transaksi</a>
-    <a href="{{ route('admin.laporan.pendapatanUsaha') }}">💰 Pendapatan Per Usaha</a>
-    <a href="{{ route('admin.laporan.produkTerlaris') }}">🔥 Produk Terlaris</a>
-    <a href="{{ route('admin.laporan.produkSlowMoving') }}">🐌 Produk Slow Moving</a>
-    <a href="{{ route('admin.laporan.transaksiUser') }}">👥 Transaksi Per User</a>
-    <a href="{{ route('admin.laporan.kategoriProduk') }}">📦 Kategori Produk</a>
-    <a href="{{ route('admin.laporan.produkViews') }}"> On Clik Produk</a>
-</div>
-
-{{-- ==== GRID DASHBOARD UTAMA ==== --}}
-<div class="dashboard-grid">
-
-    {{-- Kartu Metrik --}}
-    <div class="card-modern" style="grid-column: span 3;">
-        <div class="metric-label">Total Transaksi</div>
-        <div class="metric-value">{{ $totalTransaksi ?? 0 }}</div>
+    {{-- NAVIGASI --}}
+    <div class="report-nav">
+        <a href="{{ route('admin.laporan.index') }}" class="active">📌 Dashboard Laporan</a>
+        <a href="{{ route('admin.laporan.transaksi') }}">📄 Semua Transaksi</a>
+        <a href="{{ route('admin.laporan.pendapatanUsaha') }}">💰 Pendapatan Per Usaha</a>
+        <a href="{{ route('admin.laporan.produkTerlaris') }}">🔥 Produk Terlaris</a>
+        <a href="{{ route('admin.laporan.produkSlowMoving') }}">🐌 Produk Slow Moving</a>
+        <a href="{{ route('admin.laporan.transaksiUser') }}">👥 Transaksi Per User</a>
+        <a href="{{ route('admin.laporan.kategoriProduk') }}">📦 Kategori Produk</a>
+        <a href="{{ route('admin.laporan.produkFavorite') }}">❤️ Produk Favorite</a>
+        <a href="{{ route('admin.laporan.produkViews') }}">👁️ Produk Dilihat</a>
     </div>
 
-    <div class="card-modern" style="grid-column: span 3;">
-        <div class="metric-label">Total Pendapatan</div>
-        <div class="metric-value">Rp {{ number_format($totalPendapatan ?? 0,0,',','.') }}</div>
+    {{-- FILTER GLOBAL + EXPORT --}}
+    <div class="card-modern">
+        <form method="GET" action="{{ route('admin.laporan.index') }}">
+            <div class="row">
+                <div class="form-group col-md-2 col-sm-6">
+                    <label style="color:#b8ccdf;">Tahun</label>
+                    <select name="tahun" class="form-control">
+                        <option value="">Semua</option>
+                        @foreach ($tahunList as $tahun)
+                            <option value="{{ $tahun }}"
+                                {{ (string) request('tahun') === (string) $tahun ? 'selected' : '' }}>
+                                {{ $tahun }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2 col-sm-6">
+                    <label style="color:#b8ccdf;">Bulan</label>
+                    <select name="bulan" class="form-control">
+                        <option value="">Semua</option>
+                        @foreach ($bulanList as $num => $nama)
+                            <option value="{{ $num }}"
+                                {{ (string) request('bulan') === (string) $num ? 'selected' : '' }}>
+                                {{ $nama }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2 col-sm-6">
+                    <label style="color:#b8ccdf;">Usaha</label>
+                    <select name="usaha_id" class="form-control">
+                        <option value="">Semua</option>
+                        @foreach ($usahaList as $usaha)
+                            <option value="{{ $usaha->id }}"
+                                {{ (string) request('usaha_id') === (string) $usaha->id ? 'selected' : '' }}>
+                                {{ $usaha->nama_usaha }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2 col-sm-6">
+                    <label style="color:#b8ccdf;">Kategori</label>
+                    <select name="kategori_id" class="form-control">
+                        <option value="">Semua</option>
+                        @foreach ($kategoriList as $kategori)
+                            <option value="{{ $kategori->id }}"
+                                {{ (string) request('kategori_id') === (string) $kategori->id ? 'selected' : '' }}>
+                                {{ $kategori->nama_kategori_produk }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2 col-sm-6">
+                    <label style="color:#b8ccdf;">User</label>
+                    <select name="user_id" class="form-control">
+                        <option value="">Semua</option>
+                        @foreach ($userList as $u)
+                            <option value="{{ $u->id }}"
+                                {{ (string) request('user_id') === (string) $u->id ? 'selected' : '' }}>
+                                {{ $u->username }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2 col-sm-12" style="margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary btn-block mb-2">
+                        <i class="fa fa-filter"></i> Terapkan
+                    </button>
+                    <a href="{{ route('admin.laporan.index') }}" class="btn btn-secondary btn-block mb-2">
+                        <i class="fa fa-sync-alt"></i> Reset
+                    </a>
+                    <a href="{{ route('admin.laporan.export.pdf', request()->all()) }}"
+                        class="btn btn-danger btn-block mb-2" target="_blank">
+                        <i class="fa fa-file-pdf"></i> PDF
+                    </a>
+                    <a href="{{ route('admin.laporan.export.excel', request()->all()) }}" class="btn btn-success btn-block"
+                        target="_blank">
+                        <i class="fa fa-file-excel"></i> Excel
+                    </a>
+                </div>
+            </div>
+        </form>
     </div>
 
-    <div class="card-modern" style="grid-column: span 3;">
-        <div class="metric-label">Produk Terlaris</div>
-        <div class="metric-value">{{ $topProduk ?? '-' }}</div>
-    </div>
+    {{-- GRID DASHBOARD --}}
+    <div class="dashboard-grid">
 
-    <div class="card-modern" style="grid-column: span 3;">
-        <div class="metric-label">User Aktif</div>
-        <div class="metric-value">{{ $userAktif ?? '-' }}</div>
-    </div>
+        {{-- METRIC ATAS --}}
+        <div class="card-modern" style="grid-column: span 3;">
+            <div class="metric-label">Total Transaksi</div>
+            <div class="metric-value">{{ number_format($totalTransaksi ?? 0, 0, ',', '.') }}</div>
+        </div>
 
-    {{-- Grafik Lebar 6 Kolom --}}
-    <div class="card-modern" style="grid-column: span 6;">
-        <h5>📈 Transaksi Mingguan</h5>
-        <div class="chart-box"><canvas id="chartTransaksi"></canvas></div>
-    </div>
+        <div class="card-modern" style="grid-column: span 3;">
+            <div class="metric-label">Total Pendapatan</div>
+            <div class="metric-value">
+                Rp {{ number_format($totalPendapatan ?? 0, 0, ',', '.') }}
+            </div>
+        </div>
 
-    <div class="card-modern" style="grid-column: span 6;">
-        <h5>💰 Pendapatan Top 5 Usaha</h5>
-        <div class="chart-box"><canvas id="chartPendapatan"></canvas></div>
-    </div>
+        <div class="card-modern" style="grid-column: span 3;">
+            <div class="metric-label">Produk Terlaris (Penjualan)</div>
+            <div class="metric-value" style="font-size: 22px;">
+                {{ $topProduk ?? '-' }}
+            </div>
+        </div>
 
-    {{-- Grafik Lebar 4 Kolom --}}
-    <div class="card-modern" style="grid-column: span 4;">
-        <h5>🔥 Top 5 Produk Terlaris</h5>
-        <div class="chart-box"><canvas id="chartTerlaris"></canvas></div>
-    </div>
+        <div class="card-modern" style="grid-column: span 3;">
+            <div class="metric-label">User Aktif Tertinggi</div>
+            <div class="metric-value" style="font-size: 22px;">
+                {{ $userAktif ?? '-' }}
+            </div>
+        </div>
 
-    <div class="card-modern" style="grid-column: span 4;">
-        <h5>🐌 Produk Slow Moving</h5>
-        <div class="chart-box"><canvas id="chartSlow"></canvas></div>
-    </div>
+        {{-- BAR PENDAPATAN + DONAT KATEGORI --}}
+        <div class="card-modern" style="grid-column: span 8;">
+            <h5>💰 Pendapatan Top 3 Usaha</h5>
+            <div class="chart-box"><canvas id="chartPendapatan"></canvas></div>
+        </div>
 
-    <div class="card-modern" style="grid-column: span 4;">
-        <h5>👥 Top 5 User Aktif</h5>
-        <div class="chart-box"><canvas id="chartUser"></canvas></div>
-    </div>
+        <div class="card-modern" style="grid-column: span 4;">
+            <h5>📦 Top 3 Kategori Produk (Total Terjual)</h5>
+            <div class="chart-box"><canvas id="chartKategori"></canvas></div>
+        </div>
 
-    {{-- Donut Kategori --}}
-    <div class="card-modern" style="grid-column: span 4;">
-        <h5>📦 Kategori Produk</h5>
-        <div class="chart-box"><canvas id="chartKategori"></canvas></div>
-    </div>
+        {{-- TOP 3 PRODUK: TERLARIS / FAVORITE / DILIHAT --}}
+        <div class="card-modern" style="grid-column: span 4;">
+            <h5>🔥 Top 3 Produk Terlaris (Penjualan)</h5>
+            <div class="chart-box"><canvas id="chartTerlaris"></canvas></div>
+        </div>
 
-</div>
+        <div class="card-modern" style="grid-column: span 4;">
+            <h5>❤️ Top 3 Produk Favorite (Like)</h5>
+            <div class="chart-box"><canvas id="chartFavorite"></canvas></div>
+        </div>
+
+        <div class="card-modern" style="grid-column: span 4;">
+            <h5>👁️ Top 3 Produk Dilihat</h5>
+            <div class="chart-box"><canvas id="chartViews"></canvas></div>
+        </div>
+
+        {{-- TOP 3 USER --}}
+        <div class="card-modern" style="grid-column: span 6;">
+            <h5>👥 Top 3 User Aktif (Jumlah Transaksi)</h5>
+            <div class="chart-box"><canvas id="chartUser"></canvas></div>
+        </div>
+
+    </div>
 
 @stop
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let data = {
+            pendapatan: @json($pendapatanChart ?? ['labels' => [], 'data' => []]),
+            terlaris: @json($produkTerlarisChart ?? ['labels' => [], 'data' => []]),
+            favorite: @json($produkFavoriteChart ?? ['labels' => [], 'data' => []]),
+            views: @json($produkViewChart ?? ['labels' => [], 'data' => []]),
+            user: @json($transaksiUserChart ?? ['labels' => [], 'data' => []]),
+            kategori: @json($kategoriChart ?? ['labels' => [], 'data' => []]),
+        };
 
-let data = {
-    transaksi: @json($transaksiChart),
-    pendapatan: @json($pendapatanChart),
-    terlaris: @json($produkTerlarisChart),
-    slow: @json($produkSlowChart),
-    user: @json($transaksiUserChart),
-    kategori: @json($kategoriChart),
-};
+        const primaryColors = ['#5ab1f7', '#7bd2f6', '#32a852', '#f6931d', '#9b59b6', '#3498db'];
 
-function chart(id, type, labels, data){
-    new Chart(document.getElementById(id), {
-        type: type,
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd']
-            }]
-        },
-        options: { responsive:true, maintainAspectRatio:false }
-    });
-}
+        function chart(id, type, labels, dataset, horizontal = false) {
+            if (!labels || labels.length === 0) {
+                const el = document.getElementById(id);
+                if (el) el.parentNode.innerHTML =
+                    '<p style="text-align:center; opacity:0.6; padding-top: 50px;">Tidak ada data untuk filter ini.</p>';
+                return;
+            }
 
-chart('chartTransaksi','line', data.transaksi.labels, data.transaksi.data);
-chart('chartPendapatan','bar', data.pendapatan.labels, data.pendapatan.data);
-chart('chartTerlaris','bar', data.terlaris.labels, data.terlaris.data);
-chart('chartSlow','pie', data.slow.labels, data.slow.data);
-chart('chartUser','bar', data.user.labels, data.user.data);
-chart('chartKategori','doughnut', data.kategori.labels, data.kategori.data);
+            const el = document.getElementById(id);
+            if (!el) return;
 
-</script>
-    <div class="list-group">
-        <a href="{{ route('admin.laporan.transaksi') }}" class="list-group-item list-group-item-action">Semua Transaksi</a>
-        <a href="{{ route('admin.laporan.pendapatanUsaha') }}" class="list-group-item list-group-item-action">Pendapatan Per Usaha</a>
-        <a href="{{ route('admin.laporan.produkTerlaris') }}" class="list-group-item list-group-item-action">Produk Terlaris</a>
-        <a href="{{ route('admin.laporan.produkSlowMoving') }}" class="list-group-item list-group-item-action">Produk Slow Moving</a>
-        <a href="{{ route('admin.laporan.transaksiUser') }}" class="list-group-item list-group-item-action">Transaksi Per User</a>
-        <a href="{{ route('admin.laporan.kategoriProduk') }}" class="list-group-item list-group-item-action">Kategori Produk</a>
-       <a href="{{ route('admin.laporan.produkViews') }}" class="list-group-item list-group-item-action">Views</a>
+            let chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: type === 'doughnut',
+                        labels: {
+                            color: '#b8ccdf'
+                        }
+                    }
+                },
+                scales: (type === 'doughnut') ?
+                    {} :
+                    {
+                        x: {
+                            ticks: {
+                                color: '#b8ccdf'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#b8ccdf'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.08)'
+                            }
+                        }
+                    }
+            };
 
+            if (horizontal && type === 'bar') {
+                chartOptions.indexAxis = 'y';
+            }
+
+            // Custom Rupiah untuk pendapatan
+            if (id === 'chartPendapatan') {
+                chartOptions.scales.y.ticks.callback = function(value) {
+                    if (value >= 1000000000) return 'Rp' + (value / 1000000000).toFixed(1) + ' M';
+                    if (value >= 1000000) return 'Rp' + (value / 1000000).toFixed(1) + ' Jt';
+                    if (value >= 1000) return 'Rp' + (value / 1000).toFixed(0) + ' Rb';
+                    return 'Rp' + value;
+                };
+                chartOptions.plugins.tooltip = {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+                            }
+                            return label;
+                        }
+                    }
+                };
+            }
+
+            let datasets = [{
+                data: dataset,
+                backgroundColor: primaryColors,
+                borderColor: '#102544',
+                borderWidth: (type === 'doughnut') ? 3 : 1,
+            }];
+
+            new Chart(el, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: chartOptions
+            });
+        }
+
+        // Inisialisasi grafik
+        chart('chartPendapatan', 'bar', data.pendapatan.labels, data.pendapatan.data, false);
+        chart('chartKategori', 'doughnut', data.kategori.labels, data.kategori.data, false);
+
+        chart('chartTerlaris', 'bar', data.terlaris.labels, data.terlaris.data, true);
+        chart('chartFavorite', 'bar', data.favorite.labels, data.favorite.data, true);
+        chart('chartViews', 'bar', data.views.labels, data.views.data, true);
+        chart('chartUser', 'bar', data.user.labels, data.user.data, true);
+    </script>
 @stop

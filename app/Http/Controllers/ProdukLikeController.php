@@ -3,53 +3,37 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Produk;
 use App\Models\ProdukLike;
 
 class ProdukLikeController extends Controller
 {
     public function toggleLike(Request $request, $produkId)
     {
-        // Cek produk valid
-        $produk = Produk::find($produkId);
+        $sessionId = session()->getId(); // identitas tamu
 
-        if (!$produk) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produk tidak ditemukan'
-            ], 404);
-        }
-
-        $ip = $request->ip();
-
-        // cek apakah user (berdasarkan IP) sudah like sebelumnya
         $existing = ProdukLike::where('produk_id', $produkId)
-            ->where('ip_address', $ip)
+            ->where('session_id', $sessionId)
             ->first();
 
         if ($existing) {
-            // UNLIKE
             $existing->delete();
 
             return response()->json([
                 'success' => true,
                 'liked' => false,
-                'totalLikes' => ProdukLike::where('produk_id', $produkId)->count(),
-                'message' => 'unliked'
+                'totalLikes' => ProdukLike::where('produk_id', $produkId)->count()
             ]);
         }
 
-        // LIKE baru
         ProdukLike::create([
             'produk_id' => $produkId,
-            'ip_address' => $ip
+            'session_id' => $sessionId,
         ]);
 
         return response()->json([
             'success' => true,
             'liked' => true,
-            'totalLikes' => ProdukLike::where('produk_id', $produkId)->count(),
-            'message' => 'liked'
+            'totalLikes' => ProdukLike::where('produk_id', $produkId)->count()
         ]);
     }
 }

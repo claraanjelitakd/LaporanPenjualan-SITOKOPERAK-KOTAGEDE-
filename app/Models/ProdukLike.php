@@ -11,18 +11,9 @@ class ProdukLike extends Model
 
     protected $table = 'produk_likes';
 
-    protected $fillable = [
-        'produk_id',
-        'user_id',
-    ];
-
+    protected $fillable = ['produk_id', 'session_id'];
     public function produk()
     {
         return $this->belongsTo(Produk::class);
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 }
